@@ -163,31 +163,26 @@ def seq_to_img(m, pix):
     for row in range(len(m)):
         for col in range(len(m[row])):
             pix[col,row] = m[row][col]
-#---------------------------------------------------------------
-#------------- WaveletFusion function --------------------------
-#------- You need to modify this function-----------------------
-#---------------------------------------------------------------
+
+
 def  WaveletFusion(C1, C2):
-   # input: C1, C2 = h by w matrix, wavelet transform of a image channel
-    # h by w image height and width respectively
-    # output: return the h by w array, fusion of C1 and C2
-    
-    # 1. create a new matrix C.
-    # C(i,j) = C1(i,j), if absolute(C1(i,j)) > absolute(C2(i,j)) 
-    # else  C(i,j) = C2(i,j)
-    
-    # 2. Top left sub-matrix elements of C (125 by 125) will be the
+    C = np.zeros(C1.shape)
+    # C(i,j) = C1(i,j), if absolute(C1(i,j)) > absolute(C2(i,j))
+    for i in range(h):
+        for j in range(w):
+            if abs(C1[i][j]) > abs(C2[i][j]):
+                C[i][j] = C1[i][j]
+            # else  C(i,j) = C2(i,j)
+            else:
+                C[i][j] = C2[i][j]
+
+    # Top left sub-matrix elements of C (125 by 125) will be the
     # average of C1 and C2 (Top left sub-matrix)
-    
-    # 3. return the C matrix
-    # --------Write your code-------
-    pass
+    for m in range(125):
+        for n in range(125):
+            C[m][n] = 0.5 * (C1[m][n] + C2[m][n])
 
-
-
-
-
-    #---------------------------------------------------------------
+    return C
 
 if __name__ == "__main__":
     # Read and show the original image
@@ -201,49 +196,31 @@ if __name__ == "__main__":
     pix1 = im1.load()
     pix2 = im2.load()
     im1_channels = im1.split()
-    im2_channels  = im2.split()
+    im2_channels = im2.split()
 
     # Convert the 2d image to a 1d sequence:
     im1_matrix = []
     im2_matrix = []
     for i in range(0,3):
-		im1_matrix.append(list(im1_channels[i].getdata()))
-		im2_matrix.append(list(im2_channels[i].getdata()))
-	    
-	# Convert the 1d sequence to a 2d matrix.
-	# Each sublist represents a row. Access is done via m[row][col].
-    for ind in range(0,3):
-		im1_matrix[ind] = [im1_matrix[ind][i:i+im1.size[0]] for i in range(0, len(im1_matrix[ind]), im1.size[0])]
-		im2_matrix[ind] = [im2_matrix[ind][i:i+im2.size[0]] for i in range(0, len(im2_matrix[ind]), im2.size[0])]
+        im1_matrix.append(list(im1_channels[i].getdata()))
+        im2_matrix.append(list(im2_channels[i].getdata()))
 
+    # Convert the 1d sequence to a 2d matrix.
+    # Each sublist represents a row. Access is done via m[row][col].
+    for ind in range(0, 3):
+        im1_matrix[ind] = [im1_matrix[ind][i:i+im1.size[0]] for i in range(0, len(im1_matrix[ind]), im1.size[0])]
+        im2_matrix[ind] = [im2_matrix[ind][i:i+im2.size[0]] for i in range(0, len(im2_matrix[ind]), im2.size[0])]
 
-	#-----------------------------------------------------
-	#You need change the final_im_channels array
-	#
-	#--------------------------------------------------------
-    final_im_channels = np.zeros((h,w,3), dtype='int64')
-	#for i in range(0,3):
+    final_im_channels = np.zeros((h, w, 3), dtype='int64')
+    for i in range(0,3):
+        ch1 = fwt97_2d(im1_matrix[i], 3)
+        ch1 = np.asarray(ch1)
+        ch2 = fwt97_2d(im2_matrix[i], 3)
+        ch2 = np.asarray(ch2)
+        img_chl = WaveletFusion(ch1, ch2)
+        # If don't change final_im_channels[:,:,i] it will show you a black image
+        final_im_channels[:,:,i] = iwt97_2d(img_chl, 3)
 
-	    # -----------------------------------------------------------
-		# Write your code here
-		# 1. call fwt97_2d funtion to get wavelet signal for a image channel
-		# 2. convert the type as numpy array
-		# 3. call WaveletFusion to fuse two channels
-		# 2. call iwt97_2d function to get actual image channel
-		# 3. put it in final_im_channels array #final_im_channels[:,:,i] = channel
-		#------------------------------------------------------------
-
-
-
-
-
-
-		#If don't change final_im_channels[:,:,i] it will show you a black image
-
-	#----------------------------------------------------------------------
-	# You do not need to change the following code
-	# This code will show the images
-	#-----------------------------------------------------------------------
     im_final = np.zeros((h,w,3), dtype='int64')
     im_final[:,:,0] = final_im_channels[:,:,2]
     im_final[:,:,1] = final_im_channels[:,:,1]
@@ -254,7 +231,6 @@ if __name__ == "__main__":
     plt.xticks([]), plt.yticks([])
     plt.subplot(122),plt.imshow(im2),plt.title('im2')
     plt.xticks([]), plt.yticks([])
-
 
     im_final = im_final * 255
     cv2.imshow('final', im_final)
