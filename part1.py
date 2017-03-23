@@ -3,6 +3,7 @@ import cv2
 from matplotlib import pyplot as plt
 from PIL import Image
 
+
 def fwt97_2d(m, nlevels=1):
     ''' Perform the CDF 9/7 transform on a 2D matrix signal m.
     nlevel is the desired number of times to recursively transform the 
@@ -17,7 +18,8 @@ def fwt97_2d(m, nlevels=1):
         h /= 2
     
     return m
-    
+
+
 def iwt97_2d(m, nlevels=1):
     ''' Inverse CDF 9/7 transform on a 2D matrix signal m.
         nlevels must be the same as the nlevels used to perform the fwt.
@@ -188,30 +190,29 @@ def  WaveletFusion(C1, C2):
     #---------------------------------------------------------------
 
 if __name__ == "__main__":
-	# Read and show the original image
-	im1 = Image.open("A.jpg")
-	print(im1.format, im1.size, im1.mode)
-	print len(im1.getbands())
-	h, w = im1.size
-	im2 = Image.open("B.jpg")
+    # Read and show the original image
+    im1 = Image.open("A.jpg")
+    print(im1.format, im1.size, im1.mode)
+    print len(im1.getbands())
+    h, w = im1.size
+    im2 = Image.open("B.jpg")
 
+    # Create an image buffer object for fast access.
+    pix1 = im1.load()
+    pix2 = im2.load()
+    im1_channels = im1.split()
+    im2_channels  = im2.split()
 
-	# Create an image buffer object for fast access.
-	pix1 = im1.load()
-	pix2 = im2.load()
-	im1_channels = im1.split()
-	im2_channels  = im2.split()
-
-	# Convert the 2d image to a 1d sequence:
-	im1_matrix = []
-	im2_matrix = []
-	for i in range(0,3):
+    # Convert the 2d image to a 1d sequence:
+    im1_matrix = []
+    im2_matrix = []
+    for i in range(0,3):
 		im1_matrix.append(list(im1_channels[i].getdata()))
 		im2_matrix.append(list(im2_channels[i].getdata()))
 	    
 	# Convert the 1d sequence to a 2d matrix.
 	# Each sublist represents a row. Access is done via m[row][col].
-	for ind in range(0,3):
+    for ind in range(0,3):
 		im1_matrix[ind] = [im1_matrix[ind][i:i+im1.size[0]] for i in range(0, len(im1_matrix[ind]), im1.size[0])]
 		im2_matrix[ind] = [im2_matrix[ind][i:i+im2.size[0]] for i in range(0, len(im2_matrix[ind]), im2.size[0])]
 
@@ -220,7 +221,7 @@ if __name__ == "__main__":
 	#You need change the final_im_channels array
 	#
 	#--------------------------------------------------------
-	final_im_channels = np.zeros((h,w,3), dtype='int64')
+    final_im_channels = np.zeros((h,w,3), dtype='int64')
 	#for i in range(0,3):
 
 	    # -----------------------------------------------------------
@@ -243,21 +244,19 @@ if __name__ == "__main__":
 	# You do not need to change the following code
 	# This code will show the images
 	#-----------------------------------------------------------------------
-	im_final = np.zeros((h,w,3), dtype='int64')
-	im_final[:,:,0] = final_im_channels[:,:,2]
-	im_final[:,:,1] = final_im_channels[:,:,1]
-	im_final[:,:,2] = final_im_channels[:,:,0]
+    im_final = np.zeros((h,w,3), dtype='int64')
+    im_final[:,:,0] = final_im_channels[:,:,2]
+    im_final[:,:,1] = final_im_channels[:,:,1]
+    im_final[:,:,2] = final_im_channels[:,:,0]
 
-	cv2.imwrite('final.jpg',im_final)
-	plt.subplot(121),plt.imshow(im1, cmap = plt.get_cmap('brg'), vmin = 0, vmax = 255),plt.title('im1')
-	plt.xticks([]), plt.yticks([])
-	plt.subplot(122),plt.imshow(im2),plt.title('im2')
-	plt.xticks([]), plt.yticks([])
-
-
-	im_final = im_final*255
-	cv2.imshow('final', im_final)
-	plt.show()
-	cv2.waitKey()
+    cv2.imwrite('final.jpg',im_final)
+    plt.subplot(121),plt.imshow(im1, cmap = plt.get_cmap('brg'), vmin = 0, vmax = 255),plt.title('im1')
+    plt.xticks([]), plt.yticks([])
+    plt.subplot(122),plt.imshow(im2),plt.title('im2')
+    plt.xticks([]), plt.yticks([])
 
 
+    im_final = im_final * 255
+    cv2.imshow('final', im_final)
+    plt.show()
+    cv2.waitKey()
