@@ -162,7 +162,7 @@ def seq_to_img(m, pix):
     Assumes m has the same number of rows and cols as pix. '''
     for row in range(len(m)):
         for col in range(len(m[row])):
-            pix[col,row] = m[row][col]
+            pix[col, row] = m[row][col]
 
 
 def  WaveletFusion(C1, C2):
@@ -181,7 +181,6 @@ def  WaveletFusion(C1, C2):
     for m in range(125):
         for n in range(125):
             C[m][n] = 0.5 * (C1[m][n] + C2[m][n])
-
     return C
 
 if __name__ == "__main__":
@@ -227,9 +226,9 @@ if __name__ == "__main__":
     im_final[:,:,2] = final_im_channels[:,:,0]
 
     cv2.imwrite('final.jpg',im_final)
-    plt.subplot(121),plt.imshow(im1, cmap = plt.get_cmap('brg'), vmin = 0, vmax = 255),plt.title('im1')
+    plt.subplot(121), plt.imshow(im1, cmap=plt.get_cmap('brg'), vmin=0, vmax=255), plt.title('im1')
     plt.xticks([]), plt.yticks([])
-    plt.subplot(122),plt.imshow(im2),plt.title('im2')
+    plt.subplot(122), plt.imshow(im2), plt.title('im2')
     plt.xticks([]), plt.yticks([])
 
     im_final = im_final * 255
